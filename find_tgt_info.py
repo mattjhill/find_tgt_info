@@ -16,6 +16,7 @@ import numpy as np
 
 # ignore astropy warning that Date after 2020-12-30 is "dubious"
 warnings.filterwarnings('ignore', category=UserWarning, append=True)
+warnings.filterwarnings('ignore', category=RuntimeWarning, append=True)
 
 D2R = math.pi / 180.  #degrees to radians
 R2D = 180. / math.pi #radians to degrees 
@@ -301,7 +302,7 @@ def main(args):
             fig, axes = plt.subplots(2, 3, figsize=(14,8))
 
             axes[0,0].set_title("V3")
-            axes[0,0].fill_between(times, minV3PA_data, maxV3PA_data, edgecolor='none', facecolor='.7')
+            plot_single_instrument(axes[0,0], "V3", times, minV3PA_data, maxV3PA_data)
             axes[0,0].fmt_xdata = DateFormatter('%Y-%m-%d')
             axes[0,0].set_ylabel("Available Position Angle (Degree)")
             labels = axes[0,0].get_xticklabels()
@@ -309,7 +310,7 @@ def main(args):
                 label.set_rotation(30)
 
             axes[0,1].set_title('(R.A. = {}, Dec. = {})\n'.format(args.ra, args.dec)+"NIRCam")
-            axes[0,1].fill_between(times, minNIRCam_PA_data, maxNIRCam_PA_data, edgecolor='none', facecolor='.7')
+            plot_single_instrument(axes[0,1], 'NIRCam', times, minNIRCam_PA_data, maxNIRCam_PA_data)
             axes[0,1].fmt_xdata = DateFormatter('%Y-%m-%d')
             axes[0,1].set_ylabel("Available Position Angle (Degree)")
             labels = axes[0,1].get_xticklabels()
@@ -317,26 +318,26 @@ def main(args):
                 label.set_rotation(30)
 
             axes[0,2].set_title("MIRI")
-            axes[0,2].fill_between(times, minMIRI_PA_data, maxMIRI_PA_data, edgecolor='none', facecolor='.7')
+            plot_single_instrument(axes[0,2], 'MIRI', times, minMIRI_PA_data, maxMIRI_PA_data)
             labels = axes[0,2].get_xticklabels()
             for label in labels:
                 label.set_rotation(30)
 
             axes[1,0].set_title("NIRSpec")
             axes[1,0].fmt_xdata = DateFormatter('%Y-%m-%d')
-            axes[1,0].fill_between(times, minNIRSpec_PA_data, maxNIRSpec_PA_data, edgecolor='none', facecolor='.7')
+            plot_single_instrument(axes[1,0], 'NIRSpec', times, minNIRSpec_PA_data, maxNIRSpec_PA_data)
             labels = axes[1,0].get_xticklabels()
             for label in labels:
                 label.set_rotation(30)
 
             axes[1,1].set_title("NIRISS")
-            axes[1,1].fill_between(times, minNIRISS_PA_data, maxNIRISS_PA_data, edgecolor='none', facecolor='.7')
+            plot_single_instrument(axes[1,1], 'NIRISS', times, minNIRISS_PA_data, maxNIRISS_PA_data)
             labels = axes[1,1].get_xticklabels()
             for label in labels:
                 label.set_rotation(30)
 
             axes[1,2].set_title("FGS")
-            axes[1,2].fill_between(times, minFGS_PA_data, maxFGS_PA_data, edgecolor='none', facecolor='.7')
+            plot_single_instrument(axes[1,2], 'FGS', times, minFGS_PA_data, maxFGS_PA_data)
             labels = axes[1,2].get_xticklabels()
             for label in labels:
                 label.set_rotation(30)
@@ -348,7 +349,8 @@ def main(args):
             plot_single_instrument('Observatory V3', times, minV3PA_data, maxV3PA_data)
 
         elif args.instrument.lower() == 'nircam':
-            plot_single_instrument('NIRCam', times, minNIRCam_PA_data, maxNIRCam_PA_data)
+            fig, ax = plt.subplots(figsize=(14,8))
+            plot_single_instrument(ax, 'NIRCam', times, minNIRCam_PA_data, maxNIRCam_PA_data)
 
         elif args.instrument.lower() == 'miri':
             plot_single_instrument('MIRI', times, minMIRI_PA_data, maxMIRI_PA_data)
@@ -371,12 +373,45 @@ def main(args):
             plt.savefig(args.save_plot)
 
 
-def plot_single_instrument(instrument_name, t, min_pa, max_pa):
-    fig, ax = plt.subplots(figsize=(14,8))
-    ax.fill_between(t, min_pa, max_pa, edgecolor='none', facecolor='.7')
-    ax.set_ylabel("Available Position Angle (Degree)")
-    ax.set_title(instrument_name+" (R.A. = {}, Dec. = {})".format(args.ra, args.dec))
-    ax.fmt_xdata = DateFormatter('%Y-%m-%d')    
+def plot_single_instrument(ax, instrument_name, t, min_pa, max_pa):
+
+    min_pa = np.array(min_pa)
+    max_pa = np.array(max_pa)
+    t = np.array(t)
+
+    if np.any(min_pa > max_pa):
+        minpa_lt_maxpa = min_pa < max_pa
+        minpa_gt_maxpa = min_pa > max_pa
+        
+        max_pa_upper = np.copy(max_pa)
+        min_pa_upper = np.copy(min_pa)
+        max_pa_upper[minpa_gt_maxpa] = 360
+        max_pa_upper[minpa_lt_maxpa] = np.nan
+        min_pa_upper[minpa_lt_maxpa] = np.nan
+
+        max_pa_lower = np.copy(max_pa)
+        min_pa_lower = np.copy(min_pa)
+        min_pa_lower[minpa_gt_maxpa] = 0
+        max_pa_lower[minpa_lt_maxpa] = np.nan
+        min_pa_lower[minpa_lt_maxpa] = np.nan
+
+
+        max_pa[minpa_gt_maxpa] = np.nan
+        min_pa[minpa_gt_maxpa] = np.nan
+
+        ax.fill_between(t, min_pa_upper, max_pa_upper, facecolor='.7', edgecolor='.7', lw=2)
+        ax.fill_between(t, min_pa_lower, max_pa_lower, facecolor='.7', edgecolor='.7', lw=2)
+        ax.fill_between(t, min_pa, max_pa, edgecolor='.7', facecolor='.7', lw=2)
+        ax.set_ylabel("Available Position Angle (Degree)")
+        ax.set_title(instrument_name+" (R.A. = {}, Dec. = {})".format(args.ra, args.dec))
+        ax.fmt_xdata = DateFormatter('%Y-%m-%d')    
+
+
+    else:
+        ax.fill_between(t, min_pa, max_pa, edgecolor='none', facecolor='.7')
+        ax.set_ylabel("Available Position Angle (Degree)")
+        ax.set_title(instrument_name+" (R.A. = {}, Dec. = {})".format(args.ra, args.dec))
+        ax.fmt_xdata = DateFormatter('%Y-%m-%d')    
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='')
