@@ -1,4 +1,5 @@
 #! /usr/bin/env python
+from __future__ import print_function
 # math_extensions module
 
 """This module provides simple extensions to the Python mathematical library."""
@@ -74,7 +75,7 @@ def variance (l):
     
     #Returns the sample variance (n-1 formula).
     mean = avg(l)
-    sumsq = sum(map(lambda(i): (i - mean)**2, l))
+    sumsq = sum(map(lambda i: (i - mean)**2, l))
     return(sumsq / float(len(l) - 1))
     
 def stdev (l):

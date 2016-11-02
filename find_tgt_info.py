@@ -1,7 +1,8 @@
 #! /usr/bin/env python
 
+from __future__ import print_function
+
 import sys
-import string
 import math
 import ephemeris_old2x as EPH
 
@@ -76,6 +77,11 @@ def allowed_max_vehicle_roll(sun_ra, sun_dec, ra, dec):
     return max_vehicle_roll
 
 def main(args):
+
+    table_output=None
+    if args.save_table is not None:
+        table_output = open(args.save_table, 'w')
+        
     NRCALL_FULL_V2IdlYang = -0.0265
     NRS_FULL_MSA_V3IdlYang = 137.4874
     NIS_V3IdlYang = -0.57
@@ -89,7 +95,7 @@ def main(args):
     search_start = 58484.00000000  #Jan 1, 2019
 
     if search_start < A_eph.amin:
-        print "Warning, search start time is earlier than ephemeris start."
+        print("Warning, search start time is earlier than ephemeris start.", file=table_output)
         search_start = A_eph.amin + 1
 
     scale = 10
@@ -105,33 +111,33 @@ def main(args):
 
 
     pa = 'X'
-    if string.find(args.ra,':')>-1:  #format is hh:mm:ss.s or  dd:mm:ss.s  
+    if args.ra.find(':')>-1:  #format is hh:mm:ss.s or  dd:mm:ss.s  
       ra  = convert_ddmmss_to_float(args.ra) * 15. * D2R
       dec   = convert_ddmmss_to_float(args.dec) * D2R
     else: #format is decimal
       ra  = float(args.ra) * D2R
       dec   = float(args.dec) * D2R
 
-    print
-    print "       Target"
-    print "                ecliptic"
-    print "RA      Dec     latitude"
-    print "%7.3f %7.3f %7.3f" % (ra*R2D,dec*R2D,calc_ecliptic_lat(ra, dec)*R2D)
-    print
+    print("", file=table_output)
+    print("       Target", file=table_output)
+    print("                ecliptic", file=table_output)
+    print("RA      Dec     latitude", file=table_output)
+    print("%7.3f %7.3f %7.3f" % (ra*R2D,dec*R2D,calc_ecliptic_lat(ra, dec)*R2D), file=table_output)
+    print("", file=table_output)
 
 
     if args.pa is not None:
         pa     = float(args.pa) * D2R
-    print "Checked interval [{}, {}]".format(Time(search_start, format='mjd', out_subfmt='date').isot, 
-        Time(search_start+span, format='mjd', out_subfmt='date').isot)
+    print("Checked interval [{}, {}]".format(Time(search_start, format='mjd', out_subfmt='date').isot, 
+        Time(search_start+span, format='mjd', out_subfmt='date').isot), file=table_output)
     if pa == "X":
         iflag_old = A_eph.in_FOR(search_start,ra,dec)
-        print "|           Window [days]                 |    Normal V3 PA [deg]    |"
+        print("|           Window [days]                 |    Normal V3 PA [deg]    |", file=table_output)
     else:
         iflag_old = A_eph.is_valid(search_start,ra,dec,pa)
-        print "|           Window [days]                 |              Specified V3 PA [deg]             |"
+        print("|           Window [days]                 |              Specified V3 PA [deg]             |", file=table_output)
 
-    print "   Start           End         Duration         Start         End          RA             Dec"
+    print("   Start           End         Duration         Start         End          RA             Dec", file=table_output)
 
     if iflag_old:
       twstart = search_start
@@ -167,8 +173,8 @@ def main(args):
                     else:
                         pa_start = pa
                         pa_end = pa
-                    print " {:15} {:11} {:11.2f} {:13.5f} {:13.5f} {:13.5f} {:13.5f} ".format(Time(wstart, format='mjd', out_subfmt='date').isot,
-                        Time(wend, format='mjd', out_subfmt='date').isot,wend-wstart,pa_start*R2D,pa_end*R2D,ra*R2D,dec*R2D)
+                    print(" {:15} {:11} {:11.2f} {:13.5f} {:13.5f} {:13.5f} {:13.5f} ".format(Time(wstart, format='mjd', out_subfmt='date').isot,
+                        Time(wend, format='mjd', out_subfmt='date').isot,wend-wstart,pa_start*R2D,pa_end*R2D,ra*R2D,dec*R2D), file=table_output)
             iflag_old = iflag
 
     if iflip == True and iflag == True:
@@ -178,14 +184,14 @@ def main(args):
         else:
             pa_start = pa
             pa_end = pa
-        print " {:15} {:11} {:11.2f} {:13.5f} {:13.5f} {:13.5f} {:13.5f} ".format(Time(twstart, format='mjd', out_subfmt='date').isot
-            ,Time(adate, format='mjd', out_subfmt='date').isot,adate-twstart,pa_start*R2D,pa_end*R2D,ra*R2D,dec*R2D)
+        print(" {:15} {:11} {:11.2f} {:13.5f} {:13.5f} {:13.5f} {:13.5f} ".format(Time(twstart, format='mjd', out_subfmt='date').isot
+            ,Time(adate, format='mjd', out_subfmt='date').isot,adate-twstart,pa_start*R2D,pa_end*R2D,ra*R2D,dec*R2D), file=table_output)
 
     if iflip == False and iflag == True and pa == "X":
         if dec >0.:
-            print "%13s %13s %11s %13.5f %13.5f %13.5f %13.5f " % ('CVZ','CVZ','CVZ',360.,0.,ra*R2D,dec*R2D)
+            print("%13s %13s %11s %13.5f %13.5f %13.5f %13.5f " % ('CVZ','CVZ','CVZ',360.,0.,ra*R2D,dec*R2D), file=table_output)
         else:
-            print "%13s %13s %11s %13.5f %13.5f %13.5f %13.5f " % ('CVZ','CVZ','CVZ',0.,360.,ra*R2D,dec*R2D)
+            print("%13s %13s %11s %13.5f %13.5f %13.5f %13.5f " % ('CVZ','CVZ','CVZ',0.,360.,ra*R2D,dec*R2D), file=table_output)
 
     if 1==1:
         wstart = search_start
@@ -197,10 +203,10 @@ def main(args):
         if iflag:
           tgt_is_in = True
 
-        print
-        print
-        print "                V3PA          NIRCam           NIRSpec         NIRISS           MIRI          FGS"
-        print "   Date      min    max      min    max       min    max     min    max      min    max      min    max"
+        print("", file=table_output)
+        print("", file=table_output)
+        print("                V3PA          NIRCam           NIRSpec         NIRISS           MIRI          FGS", file=table_output)
+        print("   Date      min    max      min    max       min    max     min    max      min    max      min    max", file=table_output)
               #58849.0 264.83 275.18 264.80 264.80  42.32  42.32 264.26 264.26 269.84 269.84 263.58 263.58
         
         times = []
@@ -223,7 +229,7 @@ def main(args):
             #print atime,A_eph.in_FOR(atime,ra,dec)
             if iflag:
                 if not tgt_is_in:
-                    print
+                    print("", file=table_output)
                 tgt_is_in = True
                 
                 V3PA = A_eph.normal_pa(atime,ra,dec)*R2D
@@ -259,10 +265,10 @@ def main(args):
                 maxFGS_PA_data.append(maxFGS_PA)            
                 #print '%7.1f %6.2f %6.2f %6.2f' % (atime, V3PA, NIRCam_PA, NIRSpec_PA)
                 fmt = '{}' + '   {:6.2f} {:6.2f}'*6
-                print  fmt.format(
+                print(fmt.format(
                     Time(atime, format='mjd', out_subfmt='date').isot, minV3PA, maxV3PA,
                     minNIRCam_PA, maxNIRCam_PA, minNIRSpec_PA, maxNIRSpec_PA, minNIRISS_PA,
-                    maxNIRISS_PA, minMIRI_PA, maxMIRI_PA, minFGS_PA, maxFGS_PA)#,sun_ang
+                    maxNIRISS_PA, minMIRI_PA, maxMIRI_PA, minFGS_PA, maxFGS_PA), file=table_output)#,sun_ang
             else:
                 tgt_is_in = False
                 times.append(Time(atime, format='mjd').datetime)
@@ -357,7 +363,7 @@ def main(args):
             plot_single_instrument('FGS', times, minFGS_PA_data, maxFGS_PA_data)
 
         else:
-            print(args.instrument+" not recognized. --instrument should be one of: v3, nircam, miri, nirspec, niriss, fgs")
+            print(args.instrument+" not recognized. --instrument should be one of: v3, nircam, miri, nirspec, niriss, fgs", file=table_output)
 
         if args.save_plot is None:
             plt.show()
@@ -378,6 +384,7 @@ if __name__ == '__main__':
     parser.add_argument('dec', help='Declination of target in either sexagesimal (dd:mm:ss.s) or degrees')
     parser.add_argument('--pa', help='Specify a desired Position Angle')
     parser.add_argument('--save_plot', help='Path of file to save plot output')
+    parser.add_argument('--save_table', help='Path of file to save table output')
     parser.add_argument('--instrument', help='If specified plot shows only windows for this instrument')
     args = parser.parse_args()
     main(args)
