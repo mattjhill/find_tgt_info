@@ -287,4 +287,4 @@ and the resulting plot will only contain the windows for the specified instrumen
 
 You can also save the ouput to a file instead of having it output to terminal with `--save_table`.  Likewise, you can save the plot with `--save_plot`.
 
-`python find_tgt_info.py 0.0 0.0 --save_table visibility.txt --save_plot visibility.png
+`python find_tgt_info.py 0.0 0.0 --save_table visibility.txt --save_plot visibility.png`
