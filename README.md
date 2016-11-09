@@ -295,4 +295,4 @@ There is a known bug which causes an error when inputting sexagesimal coordinate
 This is due to the fact that the python ArgumentParser() looks for optional arguments starting with a `-` character.
 You can work around this by specifying optional arguments before the coordinates in the command line and then prefacing the declination with a `--`.  E.g.
 
-`python find_tgt_info.py --instrument nircam 00:00:00 -- -10:00:00
+`python find_tgt_info.py --instrument nircam 00:00:00 -- -10:00:00`
