@@ -24,7 +24,7 @@ PI2 = 2. * math.pi   # 2 pi
 unit_limit = lambda x: min(max(-1.,x),1.) # forces value to be in [-1,1]
 
 def convert_ddmmss_to_float(astring):
-    aline = string.split(astring,':')
+    aline = astring.split(':')
     d= float(aline[0])
     m= float(aline[1])
     s= float(aline[2])
