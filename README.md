@@ -278,16 +278,20 @@ The observability windows will be printed to the terminal and a plot showing the
 
 ![Example Plot](jwst_target_visibility.png "Example default plot output.")
 
-You can also specify the instrument via the `--instrument` flag.
+You can specify the instrument via the `--instrument` flag.
 
 `python find_tgt_info.py 0.0 0.0 --instrument nircam`
 
 and the resulting plot will only contain the windows for the specified instrument.
 The allowed values for `--instrument` are 'nircam', 'nirspec', 'niriss', 'miri', 'fgs', and 'v3' (case insensitive).
 
+Setting the `--name` flag will add a target name to the plot title
+
+`python find_tgt_info.py 0.0 0.0 --instrument nircam --name "My Target"`
+
 ![Example Plot](nircam_target_visibility.png "Example plot output when specifying instrument.")
 
-You can also save the ouput to a file instead of having it output to terminal with `--save_table`.  Likewise, you can save the plot with `--save_plot`.
+You can save the ouput to a file instead of having it output to terminal with `--save_table`.  Likewise, you can save the plot with `--save_plot`.
 
 `python find_tgt_info.py 0.0 0.0 --save_table visibility.txt --save_plot visibility.png`
 
