@@ -341,31 +341,44 @@ def main(args):
             labels = axes[1,2].get_xticklabels()
             for label in labels:
                 label.set_rotation(30)
-
-            plt.tight_layout()
             # fig.autofmt_xdate()
 
+        elif args.instrument.lower() not in ['v3', 'nircam', 'miri', 'nirspec', 'niriss', 'fgs']:
+            print()
+            print(args.instrument+" not recognized. --instrument should be one of: v3, nircam, miri, nirspec, niriss, fgs")
+            return
+
         elif args.instrument.lower() == 'v3':
-            plot_single_instrument('Observatory V3', times, minV3PA_data, maxV3PA_data)
+            fig, ax = plt.subplots(figsize=(14,8))
+            plot_single_instrument(ax, 'Observatory V3', times, minV3PA_data, maxV3PA_data)
 
         elif args.instrument.lower() == 'nircam':
             fig, ax = plt.subplots(figsize=(14,8))
             plot_single_instrument(ax, 'NIRCam', times, minNIRCam_PA_data, maxNIRCam_PA_data)
 
         elif args.instrument.lower() == 'miri':
-            plot_single_instrument('MIRI', times, minMIRI_PA_data, maxMIRI_PA_data)
+            fig, ax = plt.subplots(figsize=(14,8))
+            plot_single_instrument(ax, 'MIRI', times, minMIRI_PA_data, maxMIRI_PA_data)
 
         elif args.instrument.lower() == 'nirspec':
-            plot_single_instrument('NIRSpec', times, minNIRSpec_PA_data, maxNIRSpec_PA_data)
+            fig, ax = plt.subplots(figsize=(14,8))
+            plot_single_instrument(ax, 'NIRSpec', times, minNIRSpec_PA_data, maxNIRSpec_PA_data)
 
         elif args.instrument.lower() == 'niriss':
-            plot_single_instrument('NIRISS', times, minNIRISS_PA_data, maxNIRISS_PA_data)
+            fig, ax = plt.subplots(figsize=(14,8))
+            plot_single_instrument(ax, 'NIRISS', times, minNIRISS_PA_data, maxNIRISS_PA_data)
 
         elif args.instrument.lower() == 'fgs':
-            plot_single_instrument('FGS', times, minFGS_PA_data, maxFGS_PA_data)
-
+            fig, ax = plt.subplots(figsize=(14,8))
+            plot_single_instrument(ax, 'FGS', times, minFGS_PA_data, maxFGS_PA_data)
+        
+        if args.name is not None:
+            targname = args.name
         else:
-            print(args.instrument+" not recognized. --instrument should be one of: v3, nircam, miri, nirspec, niriss, fgs", file=table_output)
+            targname = ''
+        fig.suptitle(targname+" (RA = {}, DEC = {})".format(args.ra, args.dec), fontsize=18)               
+        fig.tight_layout()
+        fig.subplots_adjust(top=0.88)
 
         if args.save_plot is None:
             plt.show()
@@ -403,14 +416,14 @@ def plot_single_instrument(ax, instrument_name, t, min_pa, max_pa):
         ax.fill_between(t, min_pa_lower, max_pa_lower, facecolor='.7', edgecolor='.7', lw=2)
         ax.fill_between(t, min_pa, max_pa, edgecolor='.7', facecolor='.7', lw=2)
         ax.set_ylabel("Available Position Angle (Degree)")
-        ax.set_title(instrument_name+" (R.A. = {}, Dec. = {})".format(args.ra, args.dec))
+        ax.set_title(instrument_name)
         ax.fmt_xdata = DateFormatter('%Y-%m-%d')    
 
 
     else:
         ax.fill_between(t, min_pa, max_pa, edgecolor='none', facecolor='.7')
         ax.set_ylabel("Available Position Angle (Degree)")
-        ax.set_title(instrument_name+" (R.A. = {}, Dec. = {})".format(args.ra, args.dec))
+        ax.set_title(instrument_name)
         ax.fmt_xdata = DateFormatter('%Y-%m-%d')    
 
 if __name__ == '__main__':
@@ -421,5 +434,6 @@ if __name__ == '__main__':
     parser.add_argument('--save_plot', help='Path of file to save plot output')
     parser.add_argument('--save_table', help='Path of file to save table output')
     parser.add_argument('--instrument', help='If specified plot shows only windows for this instrument')
+    parser.add_argument('--name', help='Target Name to appear on plots')
     args = parser.parse_args()
     main(args)

@@ -19,27 +19,28 @@ You can download the .zip file or clone the respository and run the script from 
 To see the help info use
 
     $ python find_tgt_info.py -h
-    usage: find_tgt_info.py [-h] [--pa PA] [--save_plot SAVE_PLOT]
-                            [--save_table SAVE_TABLE] [--instrument INSTRUMENT]
-                            ra dec
+        usage: find_tgt_info.py [-h] [--pa PA] [--save_plot SAVE_PLOT]
+                                [--save_table SAVE_TABLE] [--instrument INSTRUMENT]
+                                [--name NAME]
+                                ra dec
 
-    positional arguments:
-      ra                    Right Ascension of target in either sexagesimal
-                            (hh:mm:ss.s) or degrees
-      dec                   Declination of target in either sexagesimal
-                            (dd:mm:ss.s) or degrees
+        positional arguments:
+          ra                    Right Ascension of target in either sexagesimal
+                                (hh:mm:ss.s) or degrees
+          dec                   Declination of target in either sexagesimal
+                                (dd:mm:ss.s) or degrees
 
-    optional arguments:
-      -h, --help            show this help message and exit
-      --pa PA               Specify a desired Position Angle
-      --save_plot SAVE_PLOT
-                            Path of file to save plot output
-      --save_table SAVE_TABLE
-                            Path of file to save table output
-      --instrument INSTRUMENT
-                            If specified plot shows only windows for this
-                            instrument
-
+        optional arguments:
+          -h, --help            show this help message and exit
+          --pa PA               Specify a desired Position Angle
+          --save_plot SAVE_PLOT
+                                Path of file to save plot output
+          --save_table SAVE_TABLE
+                                Path of file to save table output
+          --instrument INSTRUMENT
+                                If specified plot shows only windows for this
+                                instrument
+          --name NAME           Target Name to appear on plots
 # Example
 
 By default you need only specify R.A. and Dec. 
@@ -277,11 +278,12 @@ The observability windows will be printed to the terminal and a plot showing the
 
 ![Example Plot](jwst_target_visibility.png "Example default plot output.")
 
-You can also specify the instrument via
+You can also specify the instrument via the `--instrument` flag.
 
 `python find_tgt_info.py 0.0 0.0 --instrument nircam`
 
-and the resulting plot will only contain the windows for the specified instrument
+and the resulting plot will only contain the windows for the specified instrument.
+The allowed values for `--instrument` are 'nircam', 'nirspec', 'niriss', 'miri', 'fgs', and 'v3' (case insensitive).
 
 ![Example Plot](nircam_target_visibility.png "Example plot output when specifying instrument.")
 
