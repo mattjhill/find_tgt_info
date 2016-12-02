@@ -427,6 +427,17 @@ def plot_single_instrument(ax, instrument_name, t, min_pa, max_pa):
         ax.fmt_xdata = DateFormatter('%Y-%m-%d')    
 
 if __name__ == '__main__':
+    try:
+        # see if there is a negative dec in sexagesimal coordinates
+        dec_index = [':' in arg and arg.startswith('-') for arg in sys.argv].index(True)
+        arg_list = sys.argv[1:]
+        dec = arg_list.pop(dec_index-1)
+        arg_list.append('--')
+        arg_list.append(dec)
+
+    except ValueError:
+        arg_list = sys.argv[1:]
+
     parser = argparse.ArgumentParser(description='')
     parser.add_argument('ra', help='Right Ascension of target in either sexagesimal (hh:mm:ss.s) or degrees')
     parser.add_argument('dec', help='Declination of target in either sexagesimal (dd:mm:ss.s) or degrees')
@@ -435,5 +446,6 @@ if __name__ == '__main__':
     parser.add_argument('--save_table', help='Path of file to save table output')
     parser.add_argument('--instrument', help='If specified plot shows only windows for this instrument')
     parser.add_argument('--name', help='Target Name to appear on plots')
-    args = parser.parse_args()
+    args = parser.parse_args(arg_list)
+
     main(args)
