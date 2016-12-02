@@ -294,11 +294,3 @@ Setting the `--name` flag will add a target name to the plot title
 You can save the ouput to a file instead of having it output to terminal with `--save_table`.  Likewise, you can save the plot with `--save_plot`.
 
 `python find_tgt_info.py 0.0 0.0 --save_table visibility.txt --save_plot visibility.png`
-
-# A note on sexagesimal coordinates
-
-There is a known bug which causes an error when inputting sexagesimal coordinates which have a negative sign.  
-This is due to the fact that the python ArgumentParser() looks for optional arguments starting with a `-` character.
-You can work around this by specifying optional arguments before the coordinates in the command line and then prefacing the declination with a `--`.  E.g.
-
-`python find_tgt_info.py --instrument nircam 00:00:00 -- -10:00:00`
