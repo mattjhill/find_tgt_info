@@ -93,14 +93,22 @@ def main(args):
 
     A_eph = EPH.Ephemeris("horizons_EM_L2_wrt_Sun_2018_2022.txt",ECL_FLAG)
 
-    search_start = 58484.00000000  #Jan 1, 2019
+    search_start = Time(args.start_date, format='iso').mjd if args.start_date is not None else 58119.0  #Jan 1, 2018
+    search_end = Time(args.end_date, format='iso').mjd if args.end_date is not None else 59579.0 # Dec 31, 2021
+
+    if not (58119.0 < search_start < 59579.0) and args.start_date is not None:
+        raise ValueError('Search start date {} outside of available ephemeris {} to {}'.format(args.start_date, '2018-01-01', '2021-12-31'))
+    if not (58119.0 < search_end < 59579.0) and args.end_date is not None:
+        raise ValueError('Search end data {} outside of available ephemeris {} to {}'.format(args.end_date, '2018-01-01', '2021-12-31'))
+    if search_start > search_end:
+        raise ValueError('Search start date {} should be before end date {}'.format(args.start_date, args.end_date))
 
     if search_start < A_eph.amin:
         print("Warning, search start time is earlier than ephemeris start.", file=table_output)
         search_start = A_eph.amin + 1
 
-    scale = 10
-    span = 365*2
+    scale = 1
+    span = int(search_end-search_start)
 
 
     # if len(sys.argv) < 3:
@@ -305,6 +313,7 @@ def main(args):
             plot_single_instrument(axes[0,0], "V3", times, minV3PA_data, maxV3PA_data)
             axes[0,0].fmt_xdata = DateFormatter('%Y-%m-%d')
             axes[0,0].set_ylabel("Available Position Angle (Degree)")
+            axes[0,0].set_xlim(Time(search_start, format='mjd').datetime, Time(search_end, format='mjd').datetime)
             labels = axes[0,0].get_xticklabels()
             for label in labels:
                 label.set_rotation(30)
@@ -313,12 +322,14 @@ def main(args):
             plot_single_instrument(axes[0,1], 'NIRCam', times, minNIRCam_PA_data, maxNIRCam_PA_data)
             axes[0,1].fmt_xdata = DateFormatter('%Y-%m-%d')
             axes[0,1].set_ylabel("Available Position Angle (Degree)")
+            axes[0,1].set_xlim(Time(search_start, format='mjd').datetime, Time(search_end, format='mjd').datetime)
             labels = axes[0,1].get_xticklabels()
             for label in labels:
                 label.set_rotation(30)
 
             axes[0,2].set_title("MIRI")
             plot_single_instrument(axes[0,2], 'MIRI', times, minMIRI_PA_data, maxMIRI_PA_data)
+            axes[0,2].set_xlim(Time(search_start, format='mjd').datetime, Time(search_end, format='mjd').datetime)
             labels = axes[0,2].get_xticklabels()
             for label in labels:
                 label.set_rotation(30)
@@ -326,18 +337,21 @@ def main(args):
             axes[1,0].set_title("NIRSpec")
             axes[1,0].fmt_xdata = DateFormatter('%Y-%m-%d')
             plot_single_instrument(axes[1,0], 'NIRSpec', times, minNIRSpec_PA_data, maxNIRSpec_PA_data)
+            axes[1,0].set_xlim(Time(search_start, format='mjd').datetime, Time(search_end, format='mjd').datetime)
             labels = axes[1,0].get_xticklabels()
             for label in labels:
                 label.set_rotation(30)
 
             axes[1,1].set_title("NIRISS")
             plot_single_instrument(axes[1,1], 'NIRISS', times, minNIRISS_PA_data, maxNIRISS_PA_data)
+            axes[1,1].set_xlim(Time(search_start, format='mjd').datetime, Time(search_end, format='mjd').datetime)
             labels = axes[1,1].get_xticklabels()
             for label in labels:
                 label.set_rotation(30)
 
             axes[1,2].set_title("FGS")
             plot_single_instrument(axes[1,2], 'FGS', times, minFGS_PA_data, maxFGS_PA_data)
+            axes[1,2].set_xlim(Time(search_start, format='mjd').datetime, Time(search_end, format='mjd').datetime)
             labels = axes[1,2].get_xticklabels()
             for label in labels:
                 label.set_rotation(30)
@@ -351,26 +365,32 @@ def main(args):
         elif args.instrument.lower() == 'v3':
             fig, ax = plt.subplots(figsize=(14,8))
             plot_single_instrument(ax, 'Observatory V3', times, minV3PA_data, maxV3PA_data)
+            ax.set_xlim(Time(search_start, format='mjd').datetime, Time(search_end, format='mjd').datetime)
 
         elif args.instrument.lower() == 'nircam':
             fig, ax = plt.subplots(figsize=(14,8))
             plot_single_instrument(ax, 'NIRCam', times, minNIRCam_PA_data, maxNIRCam_PA_data)
+            ax.set_xlim(Time(search_start, format='mjd').datetime, Time(search_end, format='mjd').datetime)
 
         elif args.instrument.lower() == 'miri':
             fig, ax = plt.subplots(figsize=(14,8))
             plot_single_instrument(ax, 'MIRI', times, minMIRI_PA_data, maxMIRI_PA_data)
+            ax.set_xlim(Time(search_start, format='mjd').datetime, Time(search_end, format='mjd').datetime)
 
         elif args.instrument.lower() == 'nirspec':
             fig, ax = plt.subplots(figsize=(14,8))
             plot_single_instrument(ax, 'NIRSpec', times, minNIRSpec_PA_data, maxNIRSpec_PA_data)
+            ax.set_xlim(Time(search_start, format='mjd').datetime, Time(search_end, format='mjd').datetime)
 
         elif args.instrument.lower() == 'niriss':
             fig, ax = plt.subplots(figsize=(14,8))
             plot_single_instrument(ax, 'NIRISS', times, minNIRISS_PA_data, maxNIRISS_PA_data)
+            ax.set_xlim(Time(search_start, format='mjd').datetime, Time(search_end, format='mjd').datetime)
 
         elif args.instrument.lower() == 'fgs':
             fig, ax = plt.subplots(figsize=(14,8))
             plot_single_instrument(ax, 'FGS', times, minFGS_PA_data, maxFGS_PA_data)
+            ax.set_xlim(Time(search_start, format='mjd').datetime, Time(search_end, format='mjd').datetime)
         
         if args.name is not None:
             targname = args.name
@@ -446,6 +466,8 @@ if __name__ == '__main__':
     parser.add_argument('--save_table', help='Path of file to save table output')
     parser.add_argument('--instrument', help='If specified plot shows only windows for this instrument')
     parser.add_argument('--name', help='Target Name to appear on plots')
+    parser.add_argument('--start_date', help='Start date for visibility search in yyyy-mm-dd format')
+    parser.add_argument('--end_date', help='End date for visibility search in yyyy-mm-dd format')
     args = parser.parse_args(arg_list)
 
     main(args)
